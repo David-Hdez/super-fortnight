@@ -33,6 +33,16 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  var favorites = <WordPair>[];
+
+  void toggleFavorite() {
+    if (favorites.contains(current)) {
+      favorites.remove(current);
+    } else {
+      favorites.add(current);
+    }
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatelessWidget {
@@ -41,6 +51,14 @@ class MyHomePage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
     // Should no longer refers to the whole appState
     var pair = appState.current; 
+
+    // choose the appropriate icon depending on whether the current word pair is already in favorites
+    IconData icon;
+    if (appState.favorites.contains(pair)) {
+      icon = Icons.favorite;
+    } else {
+      icon = Icons.favorite_border;
+    }
 
     return Scaffold(
       // It only taked up as much horizontal space as its children need
@@ -55,11 +73,28 @@ class MyHomePage extends StatelessWidget {
             // Takes space and doesn't render anything
             SizedBox(height: 10),
 
-            ElevatedButton(
-              onPressed: () {
-                appState.getNext();
-              },
-              child: Text('Next'),
+            // Row widget is the horizontal equivalent of Column
+            Row(
+              // Not to take all available horizontal space
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    appState.toggleFavorite();
+                  },
+                  icon: Icon(icon),
+                  label: Text('Like'),
+                ),
+                
+                SizedBox(width: 10),
+
+                ElevatedButton(
+                  onPressed: () {
+                    appState.getNext();
+                  },
+                  child: Text('Next'),
+                ),
+              ],
             ),
           ],
         ),
